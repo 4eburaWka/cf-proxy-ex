@@ -775,6 +775,19 @@ Window.prototype.postMessage = function(message, targetOrigin, transfer) {
 };
 console.log("POSTMESSAGE INJECTED");
 
+
+// --- Блокировка ServiceWorker ---
+if (navigator.serviceWorker) {
+  navigator.serviceWorker.register = function() {
+    console.log('[cf-proxy-ex] ServiceWorker registration blocked');
+    return Promise.reject(new DOMException('Scope is not same-origin', 'SecurityError'));
+  };
+}
+
+if (relativePath_str.startsWith('http://') && !relativePath_str.includes('blob:')) {
+  relativePath_str = 'https://' + relativePath_str.substring('http://'.length);
+  console.log('Upgraded to HTTPS: ' + relativePath_str);
+}
 `;
 
 
