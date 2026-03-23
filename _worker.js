@@ -759,7 +759,21 @@ window.addEventListener('error', event => {
 }, true);
 console.log("WINDOW CORS ERROR EVENT ADDED");
 
-
+const originalPostMessage = Window.prototype.postMessage;
+Window.prototype.postMessage = function(message, targetOrigin, transfer) {
+  // Если targetOrigin — внешний домен, заменяем на '*'
+  // ⚠️ Снижает безопасность, используйте только в доверенной среде
+  if (targetOrigin && typeof targetOrigin === 'string' && targetOrigin.startsWith('http')) {
+    try {
+      const targetUrl = new URL(targetOrigin);
+      if (targetUrl.hostname !== original_website_host) {
+        return originalPostMessage.call(this, message, '*', transfer);
+      }
+    } catch(e) {}
+  }
+  return originalPostMessage.call(this, message, targetOrigin, transfer);
+};
+console.log("POSTMESSAGE INJECTED");
 
 `;
 
